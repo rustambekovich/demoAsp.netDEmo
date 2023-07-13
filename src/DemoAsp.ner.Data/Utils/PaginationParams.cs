@@ -9,13 +9,18 @@ namespace DemoAsp.ner.Data.Utils
     public class PaginationParams
     {
         public int PageNumber { get; set; }
+
         public int PageSize { get; set; }
-        public int SkipCount
+
+        public PaginationParams(int pageNumber, int pageSize)
         {
-            get
-            {
-                return (PageNumber - 1) * PageSize;
-            }
+            PageNumber = pageNumber;
+            PageSize = pageSize;
+        }
+
+        public int GetSkipCount()
+        {
+            return (PageNumber - 1) * PageSize;
         }
     }
 }

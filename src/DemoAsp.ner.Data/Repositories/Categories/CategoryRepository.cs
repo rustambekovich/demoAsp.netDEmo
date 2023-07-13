@@ -16,9 +16,23 @@ namespace DemoAsp.ner.Data.Repositories.Categories
 {
     public class CategoryRepository : BaseRepository, ICategoryRepository
     {
-        public Task<long> CountAsync()
+        public async Task<long> CountAsync()
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _connection.OpenAsync();
+                string query = $"Select Count(*) From Caregory;";
+                var result = await _connection.QuerySingleAsync<long>(query);
+                return result;
+            }
+            catch
+            {
+                return 0;
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
         }
 
         public async Task<int> CreateAsync(Category entitiy)
@@ -41,24 +55,88 @@ namespace DemoAsp.ner.Data.Repositories.Categories
             }
         }
 
-        public Task<int> DeleteAsync(long id)
+        public async Task<int> DeleteAsync(long id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                if (_connection.State == System.Data.ConnectionState.Open)
+                    await _connection.CloseAsync();
+                await _connection.OpenAsync();
+                string query = "DELETE from Caregory Where id=@Id";
+                var result = await _connection.ExecuteAsync(query, new { Id = id });
+                return result;
+            }
+            catch
+            {
+                return 0;
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
         }
 
-        public Task<IList<Category>> GetAllAsync(PaginationParams paginationParams)
+        public async Task<IList<Category>> GetAllAsync(PaginationParams paginationParams)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _connection.OpenAsync();
+                string query = $"Select id, name, description, image_Path as ImgaPath , createdat as CareatAt, updatedat as UpdateAt  from Caregory order by id desc offset {paginationParams.GetSkipCount()} limit {paginationParams.PageSize}";
+                var result = (await _connection.QueryAsync<Category>(query)).ToList();
+                return result;
+            }
+            catch
+            {
+                IList<Category> result = new List<Category>();
+                return result;
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+                if(_connection.State == System.Data.ConnectionState.Open)
+                    await _connection.CloseAsync();
+            }
         }
 
-        public Task<Category> GetByIdAsync(long id)
+        public async Task<Category> GetByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _connection.OpenAsync();
+                string query = "Select id, name, description, image_Path as ImgaPath , createdat as CareatAt, updatedat as UpdateAt from Caregory Where id=@Id";
+                var result = await _connection.QuerySingleAsync<Category>(query, new {Id = id});
+                return result;
+            }
+            catch
+            {
+                Category category = new Category();
+                return category;
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
         }
 
-        public Task<int> UpdateAsync(long id, Category entitiy)
+        public async Task<int> UpdateAsync(long id, Category entitiy)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _connection.OpenAsync();
+                string query = $"UPDATE caregory " +
+                               $"SET  name = @Name, description = @Description, image_path = @ImgaPath, createdat = @CareatAt, updatedat = @UpdateAt" +
+                               $" WHERE id = {id};";
+                var result = await _connection.ExecuteAsync(query, entitiy);
+                return result;
+            }
+            catch(Exception ex)
+            {
+                return 0;
+            }
+            finally
+            {
+                await _connection.CloseAsync();
+            }
         }
     }
 }

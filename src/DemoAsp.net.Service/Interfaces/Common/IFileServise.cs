@@ -9,12 +9,8 @@ namespace DemoAsp.net.Service.Interfaces.Common
 {
     public interface IFileServise
     {
-        // returns sub path of this image
         public Task<string> UploadImageAsync(IFormFile image);
 
-        public Task<bool> DeleteImageAsync(IFormFile subpath);
-
-        // returns sub path of this avatar
-        
+        public Task<bool> DeleteImageAsync(string subpath);
     }
 }

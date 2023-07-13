@@ -22,11 +22,21 @@ namespace DemoAsp.net.Service.Services.Common
         } 
        
 
-        public Task<bool> DeleteImageAsync(IFormFile subpath)
+        public async Task<bool> DeleteImageAsync(string subpath)
         {
-            throw new NotImplementedException();
+            string path = Path.Combine(ROOTPATH, subpath);
+            if(File.Exists(path))
+            {
+                await Task.Run(() =>
+                {
+                    File.Delete(path);
+                });
+                return true;
+            }
+            return false;
         }
 
+       
 
         public async Task<string> UploadImageAsync(IFormFile image)
         {

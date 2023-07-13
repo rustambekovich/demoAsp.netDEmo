@@ -12,7 +12,7 @@ namespace DemoAsp.net.Service.Common.Helper
         {
             FileInfo fileInfofileInfo = new FileInfo(imageName);
             string extention = fileInfofileInfo.Extension;
-            string name = "IMG" + Guid.NewGuid().ToString() + extention;
+            string name = "IMG" + Guid.NewGuid() + extention;
             return name;
         }
     }

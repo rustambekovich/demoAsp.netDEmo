@@ -21,6 +21,6 @@ namespace DemoAsp.net.Service.Interfaces.ICategories
 
         public Task<Category> GetByIdAsync(long categoryId);
 
-        public Task<bool> UpdateAsync(long categoryId, CategoryDto dto);
+        public Task<bool> UpdateAsync(long categoryId, CategoryUpdateDto dto);
     }
 }

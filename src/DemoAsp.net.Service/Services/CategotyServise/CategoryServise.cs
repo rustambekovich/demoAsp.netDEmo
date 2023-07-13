@@ -1,10 +1,13 @@
 ﻿using demoAsp.netDemo.Domain.Entities.Categoryes;
+using demoAsp.netDemo.Domain.Exceptions;
+using demoAsp.netDemo.Domain.Exceptions.Categories;
 using DemoAsp.ner.Data.Interfeces.Categories;
 using DemoAsp.ner.Data.Utils;
 using DemoAsp.net.Service.Common.Helper;
 using DemoAsp.net.Service.Dtos.CategoriesDto;
 using DemoAsp.net.Service.Interfaces.Common;
 using DemoAsp.net.Service.Interfaces.ICategories;
+using DemoAsp.net.Service.Services.Common;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System;
 using System.Collections.Generic;
@@ -25,9 +28,14 @@ namespace DemoAsp.net.Service.Services.CategotyServise
             this._fileServise1 = fileServise;
 
         }
+        /// <summary>
+        /// Count Category
+        /// </summary>
+        /// <returns></returns>
         public Task<long> CountAsync()
         {
-            throw new NotImplementedException();
+            var result = _categoryRepository.CountAsync();
+            return result;
         }
 
         public async Task<bool> CreateAsync(CategoryDto dto)
@@ -44,24 +52,50 @@ namespace DemoAsp.net.Service.Services.CategotyServise
             return res > 0;
         }
 
-        public Task<bool> DeleteAsync(long categoryId)
+        public async Task<bool> DeleteAsync(long categoryId)
         {
-            throw new NotImplementedException();
+            var result = await _categoryRepository.GetByIdAsync(categoryId);
+            if (result != null)
+            {
+                var res = await _categoryRepository.DeleteAsync(categoryId);
+                if(res > 0)
+                {
+                     await _fileServise1.DeleteImageAsync(result.ImgaPath);
+                }
+                return res > 0;
+            }
+            return false;
         }
 
-        public Task<IList<Category>> GetAllAsync(PaginationParams @params)
+        public async Task<IList<Category>> GetAllAsync(PaginationParams @params)
         {
-            throw new NotImplementedException();
+            var result = await _categoryRepository.GetAllAsync(@params);
+            return result;
         }
 
-        public Task<Category> GetByIdAsync(long categoryId)
+        public async Task<Category> GetByIdAsync(long categoryId)
         {
-            throw new NotImplementedException();
+            var result = await _categoryRepository.GetByIdAsync(categoryId);
+            return result;
         }
 
-        public Task<bool> UpdateAsync(long categoryId, CategoryDto dto)
+        public async Task<bool> UpdateAsync(long categoryId, CategoryUpdateDto dto)
         {
-            throw new NotImplementedException();
+            var result = await _categoryRepository.GetByIdAsync(categoryId);
+            if (result != null)
+            {
+                result.Name = dto.Name;
+                result.Description = dto.Description;
+                if (dto.Image != null)
+                {
+                    await _fileServise1.DeleteImageAsync(result.ImgaPath);
+                    string newImagePath = await _fileServise1.UploadImageAsync(dto.Image);
+                    result.ImgaPath = newImagePath;
+                    result.UpdateAt = TimeHelper.GetDateTime();
+                }
+            }
+            var res = await _categoryRepository.UpdateAsync(categoryId, result);
+            return res > 0;
         }
     }
 }
